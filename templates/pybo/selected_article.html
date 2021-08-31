@@ -1,7 +1,15 @@
-{% extends 'base.html' %}
+{% load pybo_filter %}
 
 {% block content %}
+
 <div class="container my-3">
+    <!--게시판 선택-->
+    <a href="{%url 'pybo:index' %}">전체글보기</a>
+    {% for category in categories %}
+    <a href="{% url 'pybo:category_index' category %}">{{category}}</a>
+    {% endfor %}
+    <!--게시판 선택-->
+    <h1>{{selected_category}}</h1>
     <table class="table">
         <thead>
         <tr class="thead-dark">
@@ -11,14 +19,20 @@
         </tr>
         </thead>
         <tbody>
-        {% if question_list %}
-        {% for question in question_list %}
+        {% if article_list %}
+        {% for article in article_list %}
         <tr>
-  
             <td>
-                <a href="{% url 'pybo:detail' question.id %}">{{ question.subject }}</a>
+                <!-- 번호 = 전체건수 - 시작인덱스 - 현재인덱스 + 1 -->
+                {{ article_list.paginator.count|sub:article_list.start_index|sub:forloop.counter0|add:1 }}
             </td>
-            <td>{{ question.create_date }}</td>
+            <td>
+                <a href="{% url 'pybo:detail' article.id %}">{{ article.subject }}</a>
+                {% if article.answer_set.count > 0 %}
+                <span class="text-danger small ml-2">{{ article.answer_set.count }}</span>
+                {% endif %}
+            </td>
+            <td>{{ article.create_date }}</td>
         </tr>
         {% endfor %}
         {% else %}
@@ -33,12 +47,12 @@
          
         <!-- 처음페이지 -->        
         <li class="page-item">
-            <a class="page-link" href="?page=question_list.start_index">처음</a>
+            <a class="page-link" href="?page=article_list.start_index">처음</a>
         </li>
         <!-- 이전페이지 -->
-        {% if question_list.has_previous %}
+        {% if article_list.has_previous %}
         <li class="page-item">
-            <a class="page-link" href="?page={{ question_list.previous_page_number }}">이전</a>
+            <a class="page-link" href="?page={{ article_list.previous_page_number }}">이전</a>
         </li>
         {% else %}
         <li class="page-item disabled">
@@ -46,10 +60,10 @@
         </li>
         {% endif %}
         <!-- 페이지리스트 -->
-        {% for page_number in question_list.paginator.page_range %}
-        {% if page_number >= question_list.number|add:-5 and page_number <= question_list.number|add:5 %}
+        {% for page_number in article_list.paginator.page_range %}
+        {% if page_number >= article_list.number|add:-5 and page_number <= article_list.number|add:5 %}
 
-            {% if page_number == question_list.number %}
+            {% if page_number == article_list.number %}
             <li class="page-item active" aria-current="page">
                 <a class="page-link" href="?page={{ page_number }}">{{ page_number }}</a>
             </li>
@@ -62,9 +76,9 @@
 
         {% endfor %}
         <!-- 다음페이지 -->
-        {% if question_list.has_next %}
+        {% if article_list.has_next %}
         <li class="page-item">
-            <a class="page-link" href="?page={{ question_list.next_page_number }}">다음</a>
+            <a class="page-link" href="?page={{ article_list.next_page_number }}">다음</a>
         </li>
         {% else %}
         <li class="page-item disabled">
@@ -74,10 +88,10 @@
 
         <!-- 마지막페이지 -->        
         <li class="page-item">
-            <a class="page-link" href="?page={{question_list.end_index}}">마지막</a>
+            <a class="page-link" href="?page={{article_list.end_index}}">마지막</a>
         </li>
     </ul>
-    <div style="text-align: center;">{{question_list}}</div>
+    <div style="text-align: center;">{{article_list}}</div>
 
     <!-- 페이징처리 끝 -->
     <a href="{% url 'pybo:question_create' %}" class="btn btn-primary">질문 등록하기</a>

@@ -1,0 +1,10 @@
+<h1>resetpw!!!</h1>
+
+{% if statuscode == 1 %}
+    <h1>가입 시 입력한 메일로 새로운 비밀번호가 전송되었습니다.</h1>
+    <span> <a href="{% url 'common:login' %}">로그인 하러 가기</a></span>
+{% else %}
+    <h1>fail</h1>
+{% endif %}
+
+
